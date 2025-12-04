@@ -22,16 +22,14 @@ void test() {
   // CHECK-NEXT: to label %[[CONT1:.*]] unwind label %[[LPAD1:.*]]
 
   // CHECK: [[CONT1]]:
-  // CHECK-NOT: call void @llvm.lifetime.end.p0(ptr %[[AGG1]])
-
-  // CHECK: call void @llvm.lifetime.start.p0(ptr %[[AGG2]])
-  // CHECK: invoke void @gen(ptr{{.*}} sret(%struct.Trivial){{.*}} %[[AGG2]])
-  // CHECK: invoke void @func(ptr{{.*}} %[[AGG2]])
+  // CHECK-NEXT: call void @llvm.lifetime.end.p0(ptr %[[AGG1]])
+  // CHECK-NEXT: call void @llvm.lifetime.start.p0(ptr %[[AGG2]])
+  // CHECK: invoke void @gen(ptr{{.*}} sret(%struct.Trivial) align 4 %[[AGG2]])
+  // CHECK: invoke void @func(ptr{{.*}} byval(%struct.Trivial) align 8 %[[AGG2]])
   // CHECK-NEXT: to label %[[CONT2:.*]] unwind label %[[LPAD2:.*]]
 
   // CHECK: [[CONT2]]:
-  // CHECK-DAG: call void @llvm.lifetime.end.p0(ptr %[[AGG2]])
-  // CHECK-DAG: call void @llvm.lifetime.end.p0(ptr %[[AGG1]])
+  // CHECK-NEXT: call void @llvm.lifetime.end.p0(ptr %[[AGG2]])
 
   // CHECK: [[LPAD1]]:
   // CHECK: landingpad

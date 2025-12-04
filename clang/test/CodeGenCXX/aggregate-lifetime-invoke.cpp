@@ -15,27 +15,26 @@ void test() {
 
   // CHECK: call void @llvm.lifetime.start.p0(ptr{{.*}} %[[AGG1]])
   // CHECK: invoke void @func_that_throws(ptr{{.*}} %[[AGG1]])
-  // CHECK-NEXT: to label %[[CONT1:.*]] unwind label %[[LPAD:.*]]
 
-  // CHECK: [[CONT1]]:
-
+  // CHECK: [[CONT1:.*]]:
   // CHECK-NEXT: call void @llvm.lifetime.end.p0(ptr{{.*}} %[[AGG1]])
   // CHECK-NEXT: call void @llvm.lifetime.start.p0(ptr{{.*}} %[[AGG2]])
-  // CHECK: invoke void @_func_that_throws(ptr{{.*}} %[[AGG2]])
-  // CHECK-NEXT: to label %[[CONT2:.*]] unwind label %[[LPAD]]
+  // CHECK: invoke void @func_that_throws(ptr{{.*}} %[[AGG2]])
 
-  // CHECK: [[CONT2]]:
+  // CHECK: [[CONT2:.*]]:
   // CHECK-NEXT: call void @llvm.lifetime.end.p0(ptr{{.*}} %[[AGG2]])
-  // CHECK: br label %[[TRY_CONT:.*]]
 
-  // CHECK: [[LPAD]]:
+  // CHECK: [[LPAD1:lpad.*]]:
   // CHECK: landingpad
-  // CHECK-NOT: call void @llvm.lifetime.end.p0(ptr{{.*}} %[[AGG1]])
-  // CHECK-NOT: call void @llvm.lifetime.end.p0(ptr{{.*}} %[[AGG2]])
-  // CHECK: br label %[[TRY_CONT]]
+  // CHECK: br label %[[EHCLEANUP:.*]]
 
-  // CHECK: [[TRY_CONT]]:
-  // CHECK-NEXT: ret void
+  // CHECK: [[LPAD2:lpad.*]]:
+  // CHECK: landingpad
+  // CHECK: call void @llvm.lifetime.end.p0(ptr{{.*}} %[[AGG2]])
+  // CHECK: br label %[[EHCLEANUP]]
+
+  // CHECK: [[EHCLEANUP]]:
+  // CHECK: call void @llvm.lifetime.end.p0(ptr{{.*}} %[[AGG1]])
   try {
     func_that_throws(Trivial{0});
     func_that_throws(Trivial{0});

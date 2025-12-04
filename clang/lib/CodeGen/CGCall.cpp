@@ -4979,6 +4979,9 @@ void CodeGenFunction::EmitCallArg(CallArgList &args, const Expr *E,
                                              ArgSlotAlloca);
       } else {
         args.addLifetimeCleanup({ArgSlotAlloca.getPointer()});
+        if (getInvokeDest())
+          pushFullExprCleanup<CallLifetimeEnd>(CleanupKind::EHCleanup,
+                                               ArgSlotAlloca);
       }
     }
   }

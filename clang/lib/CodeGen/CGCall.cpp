@@ -6313,10 +6313,11 @@ RValue CodeGenFunction::EmitCall(const CGFunctionInfo &CallInfo,
   for (CallLifetimeEnd &LifetimeEnd : CallLifetimeEndAfterCall)
     LifetimeEnd.Emit(*this, /*Flags=*/{});
 
-  if (!CGM.getCodeGenOpts().NoLifetimeMarkersForTemporaries)
-    for (const CallArgList::EndLifetimeInfo &LT :
-         CallArgs.getLifetimeCleanups())
-      EmitLifetimeEnd(LT.Addr);
+  // Add lifetime end markers for any temporary aggregates. Under
+  // NoLifetimeMarkersForTemporaries LifetimeCleanups will be empty, so this is
+  // still correct.
+  for (const CallArgList::EndLifetimeInfo &LT : CallArgs.getLifetimeCleanups())
+    EmitLifetimeEnd(LT.Addr);
 
   if (!ReturnValue.isExternallyDestructed() &&
       RetTy.isDestructedType() == QualType::DK_nontrivial_c_struct)

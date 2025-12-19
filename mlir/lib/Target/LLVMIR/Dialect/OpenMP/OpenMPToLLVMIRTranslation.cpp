@@ -1971,7 +1971,8 @@ convertOmpTeams(omp::TeamsOp op, llvm::IRBuilderBase &builder,
     return failure();
 
   if (op.hasNumTeamsDimsModifier()) {
-    return op.emitError("Lowering of num_teams with dims modifier is NYI.");
+    return op.emitError(
+        "Lowering of num_teams with dims modifier is not yet implemented.");
   }
 
   DenseMap<Value, llvm::Value *> reductionVariableMap;
@@ -5643,7 +5644,8 @@ extractHostEvalClauses(omp::TargetOp targetOp, Value &numThreads,
           .Case([&](omp::TeamsOp teamsOp) {
             // num_teams dims and values are not yet supported
             assert(!teamsOp.hasNumTeamsDimsModifier() &&
-                   "Lowering of num_teams with dims modifier is NYI.");
+                   "Lowering of num_teams with dims modifier is not yet "
+                   "implemented.");
             if (teamsOp.getNumTeamsLower() == blockArg)
               numTeamsLower = hostEvalVar;
             else if (teamsOp.getNumTeamsUpper() == blockArg)
@@ -5767,8 +5769,9 @@ initTargetDefaultAttrs(omp::TargetOp targetOp, Operation *capturedOp,
     // ensures values are mapped and available inside of the target region.
     if (auto teamsOp = castOrGetParentOfType<omp::TeamsOp>(capturedOp)) {
       // num_teams dims and values are not yet supported
-      assert(!teamsOp.hasNumTeamsDimsModifier() &&
-             "Lowering of num_teams with dims modifier is NYI.");
+      assert(
+          !teamsOp.hasNumTeamsDimsModifier() &&
+          "Lowering of num_teams with dims modifier is not yet implemented.");
       numTeamsLower = teamsOp.getNumTeamsLower();
       numTeamsUpper = teamsOp.getNumTeamsUpper();
       threadLimit = teamsOp.getThreadLimit();
